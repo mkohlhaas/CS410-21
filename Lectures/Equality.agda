@@ -83,7 +83,6 @@ suc n * m = m + (n * m)
 
 open ≡-Reasoning
 
-
 *-distribʳ-+ : (m n o : ℕ) -> (n + o) * m ≡ n * m + o * m
 *-distribʳ-+ m zero o = refl
 *-distribʳ-+ m (suc n) o =
@@ -99,7 +98,6 @@ open ≡-Reasoning
     (suc n * m) + (o * m)
   ∎ -- \qed
 
-
 {-
 What have we learnt?
 
@@ -108,18 +106,6 @@ What have we learnt?
 2. Can work on equations step by step (from both directions)
 
 -}
-
-
-
-
-
-
-
-
-
-
-
-
 
 -- I'm putting these fixity declarations out of sight here (they are
 -- usually out of sight in the library instead); well done for poking
