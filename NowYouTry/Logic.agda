@@ -85,12 +85,9 @@ a = b   | a ⇐⇒ b  | isomorphism    | isomorphism    | from . to = to . from 
 _⇒_ : Set → Set → Set
 A ⇒ B = A → B
 
--- A ⇒ A
 I : {A : Set} → A → A
 I a = a
 
-
--- ((A → B → C) → D) ⇒ (A → C) → D
 ex1 : {A B C D : Set} → ((A → B → C) → D) → (A → C) → D
 ex1 f g = f (λ a b → g a)
 
@@ -120,8 +117,16 @@ ex3 a = (a , a)
 -- True and False
 ----------------
 
--- the empty type represents a false proposition
+-- the unit type represents a true proposition
 
+open import Data.Unit -- ⊤ \top
+
+ex4 : {B : Set} → B → ⊤
+ex4 b = _
+
+test = ex4 {⊤ → ⊤} (λ x → x)
+
+-- the empty type represents a false proposition
 open import Data.Empty
 
 ex4 : {B : Set} → ⊥ → B
@@ -132,7 +137,6 @@ ex4 ()
 -- ⊥-elim ()
 
 -- the unit type represents a true proposition
-
 open import Data.Unit
 
 ex5 : {B : Set} → B → ⊤
