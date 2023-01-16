@@ -88,8 +88,9 @@ A ⇒ B = A → B
 I : {A : Set} → A → A
 I a = a
 
+-- `b` is not used in the function given to `f`
 ex1 : {A B C D : Set} → ((A → B → C) → D) → (A → C) → D
-ex1 f g = f (λ a b → g a)
+ex1 f g = f (λ a _ → g a)
 
 ----------------
 -- Conjunction
@@ -97,15 +98,17 @@ ex1 f g = f (λ a b → g a)
 
 -- Q: What is a proof of `A ∧ B`?
 
--- A: A proof of A and a proof of B -- a tuple!
+-- A: A proof of A and a proof of B -- a tuple (pair), a product type!
 
 open import Data.Product
 
+-- `×` is a non-dependent product type
+-- `Σ` is a     dependent product type
 _∧_ : Set → Set → Set
 A ∧ B = A × B
 
 ex2 : {A B : Set} → A × B → A
-ex2 (fst , snd) = fst
+ex2 (fst , _) = fst
 
 ex2' : {A B : Set} → A × B → A
 ex2' = proj₁
@@ -113,52 +116,45 @@ ex2' = proj₁
 ex3 : {A : Set} → A → A × A
 ex3 a = (a , a)
 
-----------------
--- True and False
-----------------
+--------------------
+-- True and False --
+--------------------
 
--- the unit type represents a true proposition
-
-open import Data.Unit -- ⊤ \top
-
-ex4 : {B : Set} → B → ⊤
-ex4 b = _
-
-test = ex4 {⊤ → ⊤} (λ x → x)
-
--- the empty type represents a false proposition
+-- The empty type represents a False proposition.
 open import Data.Empty
 
-ex4 : {B : Set} → ⊥ → B
+-- `()` is the absurd pattern - cannot happen!
+-- Logic breaks down and you can prove anything!
+ex4 : {A : Set} → ⊥ → A
 ex4 ()
 
 -- ex4 = ⊥-elim
 -- ⊥-elim : ∀ {w} {Whatever : Set w} → ⊥ → Whatever
 -- ⊥-elim ()
 
--- the unit type represents a true proposition
+-- The unit type represents a True proposition.
 open import Data.Unit
 
-ex5 : {B : Set} → B → ⊤
-ex5 b = tt
+ex5 : {A : Set} → A → ⊤
+ex5 a = tt
 
--- use Agda's inferrence
-ex5' : {B : Set} → B → ⊤
-ex5' b = _
+-- using Agda's inferrence
+ex5' : {A : Set} → A → ⊤
+ex5' a = _
 
 -- normalizing `test` (C-c C-n) yields: tt
---            B        b
---            |        |
---         |-----| |-------|
-test = ex5 {⊤ → ⊤} (λ x → x)
+--             A        a
+--             |        |
+--          |-----| |-------|
+test2 = ex5 {⊤ → ⊤} (λ x → x)
 
-----------------
--- Disjunction
----------------
+-----------------
+-- Disjunction --
+-----------------
 
 -- Q: What is a proof of `A ∨ B`?
 
--- A: A proof of A, or a proof of B -- a disjoint union
+-- A: A proof of A, or a proof of B -> disjoint union type, sum type.
 
 open import Data.Sum
 
@@ -175,7 +171,7 @@ ex6 (inj₂ b) = inj₁ b
 
 -- Q: What is a proof of `¬ A`?
 
--- A: A method to show that all proofs of A are impossible -- A FUNCTION `A → ⊥`
+-- A: A method to show that all proofs of A are impossible -> function `A → ⊥`
 
 ¬_ : Set → Set
 ¬ A = A → ⊥
@@ -183,6 +179,7 @@ ex6 (inj₂ b) = inj₁ b
 ex7 : ¬ (⊤ → ⊥)
 ex7 ⊤→⊥ = ⊤→⊥ tt
 
+-- logic breaks down and we can prove anything
 explosion : {A B : Set} → A → ¬ A → B
 explosion a ¬a = ⊥-elim (¬a a)
 
@@ -196,6 +193,6 @@ materialImplication (inj₁ ¬a) a = ⊥-elim (¬a a)
 materialImplication (inj₂  b) _ = b
 
 -- what about `(A → B) → (¬ A ⊎ B)`?
--- not possible; there is no a ∈ A to apply to f
-materialImplicationInv : {A B : Set} → (A → B) → (¬ A ⊎ B)
-materialImplicationInv f = {!!}
+-- materialImplicationInv : {A B : Set} → (A → B) → (¬ A ⊎ B)
+-- materialImplicationInv f = inj₁ (λ a → {!!}) -- Goal: ⊥ (not possible)
+-- materialImplicationInv f = inj₂ (f {!!})     -- Goal: A (don't have an A)
