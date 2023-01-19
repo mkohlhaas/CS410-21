@@ -2,12 +2,12 @@
 
 module NowYouTry.MoreEquality where
 
-open import Data.Nat  using (ℕ; zero; suc)
-open import Data.Vec  hiding (reverse; _++_; [_])
-open import Data.List hiding (reverse)
+open import Data.List                             hiding (reverse)
+open import Data.Nat                              using (ℕ; zero; suc)
 open import Data.Product
-open import Relation.Binary.PropositionalEquality hiding (cong; sym; trans; subst; [_])
+open import Data.Vec                              hiding (reverse; _++_; [_])
 open import Lectures.Equality
+open import Relation.Binary.PropositionalEquality hiding (cong; sym; trans; subst; [_])
 
 ------------------------------------------------------------------
 --             Equality is an Equivalence Relation              --
