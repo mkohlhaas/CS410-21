@@ -23,7 +23,7 @@ e1 : Expr
 e1 = num 7 +E num 3 +E num 5
 
 e2 : Expr
-e2 = (ifE bit true then num 2 else num 4) +E num 0
+e2 = (ifE bit true then num 2 else num 4) +E num 1
 
 ne3 : Expr
 ne3 = ifE num 6 then bit false else bit true
@@ -54,7 +54,15 @@ eval (ifE e then e' else e'') = do
 _ : eval e1 ≡ just (num 15)
 _ = refl
 
-_ : eval e2 ≡ just (num 2)
+_ : eval e2 ≡ just (num 3)
+_ = refl
+
+-- _ : eval e2 ≡ just { } & C-c C-s
+_ : eval e2 ≡ just (num (2 + 1)) 
+_ = refl
+
+-- _ : eval e2 ≡ just { } & C-u C-c C-s
+_ : eval e2 ≡ just (num 3)
 _ = refl
 
 _ : eval ne3 ≡ nothing
@@ -90,8 +98,11 @@ te1 = num 7 +E num 3 +E num 5
 te2 : TExpr nat
 te2 = (ifE bit true then num 2 else num 4) +E num 0
 
--- tne3 : TExpr ?
--- tne3 = ifE num 6 then bit false else bit true
+te3 : TExpr bool
+te3 = ifE bit true then bit false else bit true
+
+-- tne4 : TExpr ?
+-- tne4 = ifE num 6 then bit false else bit true
 
 ----------------
 -- Evaluation --
@@ -101,6 +112,7 @@ TVal : Ty → Set
 TVal nat  = ℕ
 TVal bool = Bool
 
+-- Maybe is gone!
 teval : ∀ {t} → TExpr t → TVal t
 teval (num n)                  = n
 teval (bit b)                  = b
@@ -113,6 +125,9 @@ _ = refl
 _ : teval te2 ≡ 2
 _ = refl
 
+_ : teval te3 ≡ false
+_ = refl
+
 -------------
 -- Summary --
 -------------
@@ -122,9 +137,11 @@ _ = refl
 -- · No need for Maybe anymore, as expressions don't go wrong by construction.
 
 --------------------------------------------
--- Relating Typed and Untyped Expressions --
+-- Relating Untyped and Typed Expressions --
 --------------------------------------------
 
+-- Going from typed to untyped is easy: Just forget the type!
+-- ∣_∣ can be seen as the 'forget type'-operator. 
 ∣_∣  : ∀ {t} → TExpr t → Expr
 ∣ num n ∣                  = num n
 ∣ bit b ∣                  = bit b
@@ -146,16 +163,16 @@ bool ≟' bool = yes refl
 
 decToMaybe : {P : Set} → Dec P → Maybe P
 decToMaybe (yes p) = just p
-decToMaybe (no p)  = nothing
+decToMaybe (no  p) = nothing
 
 _≟_ : (τ : Ty) → (τ' : Ty) → Maybe (τ ≡ τ')
 x ≟ y = decToMaybe (x ≟' y)
 
 infer : (e : Expr) → Maybe (Welltyped e)
-infer (num n)                  = just (okay nat (num n) refl)
+infer (num n)                  = just (okay nat  (num n) refl)
 infer (bit b)                  = just (okay bool (bit b) refl)
 infer (e +E e')                = do
-  okay nat t p   ← infer e where _ → nothing
+  okay nat t p   ← infer e  where _ → nothing
   okay nat t' p' ← infer e' where _ → nothing
   just (okay nat (t +E t') (cong₂ _+E_ p p'))
 infer (ifE e then e' else e'') = do
@@ -177,7 +194,7 @@ eval' e = do
 _ : eval' e1 ≡ just (num 15)
 _ = refl
 
-_ : eval' e2 ≡ just (num 2)
+_ : eval' e2 ≡ just (num 3)
 _ = refl
 
 _ : eval' ne3 ≡ nothing
@@ -189,11 +206,10 @@ _ = refl
 
 -- · There is an obvious way to go from more information to less information.
 -- · For well-formed expressions, we can go the other way.
--- · Can factor unsafe evaluation unsafe infer and safe eval.
---   (Should be slightly more efficient).
+-- · Can factor unsafe evaluation to unsafe infer and safe eval. (Should be slightly more efficient).
 
 -----------------
--- Now you try --
+-- Now You Try --
 -----------------
 
 -- Extend TExpr with a comparison operation for numbers.
