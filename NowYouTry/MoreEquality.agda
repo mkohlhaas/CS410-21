@@ -43,7 +43,9 @@ trans refl refl = refl
 --------------------------------------------
 
 -- All properties respect equality.
--- Replace P (for Predicate or Property) by `px` if equality holds for component of P.
+-- P (for Predicate or Property) : A → Set
+-- In P substitute x for y.
+-- Another view: Replace in `P x` x with y.
 -- `cong` is for any function `A → B`.
 subst : {A : Set}{x y : A} → (P : A → Set) → x ≡ y → P x → P y
 subst P refl px = px
@@ -58,14 +60,14 @@ subst P refl px = px
 
 -- We can reverse Lists naively (complexity O(n²)).
 revList : {A : Set} → List A → List A
-revList [] = []
+revList []       = []
 revList (x ∷ xs) = revList xs ++ [ x ]
 
 -- This works the same for Vectors.
 
 -- We can reverse Lists in a fast way (complexity O(n)) with an accumulator.
 revListFast : {A : Set} → List A → List A → List A
-revListFast acc [] = acc
+revListFast acc []       = acc
 revListFast acc (x ∷ xs) = revListFast (x ∷ acc) xs
 
 -- Let's do the same for Vectors!
@@ -77,19 +79,20 @@ revListFast acc (x ∷ xs) = revListFast (x ∷ acc) xs
 
 -- with `subst`
 revAcc : {A : Set}{n m : ℕ} → Vec A n → Vec A m → Vec A (n + m)
-revAcc {A} acc [] = subst (Vec A) (sym (+-identity-right _)) acc
+revAcc {A} acc []       = subst (Vec A) (sym (+-identity-right _)) acc
 revAcc {A} acc (x ∷ xs) = subst (Vec A) (sym (+suc _ _)) (revAcc (x ∷ acc) xs)
 
 reverse : {A : Set}{m : ℕ} → Vec A m → Vec A m
 reverse = revAcc []
 
+test : Vec ℕ 3
 test = reverse (1 ∷ 2 ∷ 3 ∷ [])
 
 {- What have we learnt?
    1. We can use `subst` to "fix up" types that are not definitionally equal.
    2. In certain situations, we can also use `rewrite`.
       - `subst`   works every single time
-      - `rewrite` works half  of the time -}
+      - `rewrite` works half of the time -}
 
 ---------------------------
 -- Structural Equalities --
@@ -157,28 +160,9 @@ UIP refl refl = refl
 -- Use the combinators above and the lemmas from `Lectures.Equality` to
 -- prove the following slightly contrived equality:
 
+aBitContrived : (n m : ℕ) → (n + m , 16 , λ xs → m ∷ xs) ≡[ ℕ × (Σ[ k ∈ ℕ ] (Vec ℕ k → Vec ℕ (suc k))) ] (m + n , 4 * 4 , λ xs → m + 0 ∷ xs)
+aBitContrived n m = pair-≡ (+-comm n m) (dpair-≡ refl (cong (_∷_) (sym(+-identity-right _))))
+
 -- the easy way
-aBitContrived' : (n m : ℕ) →
-                 (n + m , 16 , λ xs → m ∷ xs) ≡[ ℕ × (Σ[ k ∈ ℕ ] (Vec ℕ k → Vec ℕ (suc k))) ] (m + n , 4 * 4 , λ xs → m + 0 ∷ xs)
+aBitContrived' : (n m : ℕ) → (n + m , 16 , λ xs → m ∷ xs) ≡[ ℕ × (Σ[ k ∈ ℕ ] (Vec ℕ k → Vec ℕ (suc k))) ] (m + n , 4 * 4 , λ xs → m + 0 ∷ xs)
 aBitContrived' n m rewrite +-comm n m | +-identity-right m = refl
-
--- TODO
-aBitContrived : (n m : ℕ) →
-                (n + m , 16 , λ xs → m ∷ xs) ≡[ ℕ × (Σ[ k ∈ ℕ ] (Vec ℕ k → Vec ℕ (suc k))) ] (m + n , 4 * 4 , λ xs → m + 0 ∷ xs)
-aBitContrived zero zero = refl
-aBitContrived zero (suc m) = pair-≡ (cong suc (sym (+-identity-right m))) (dpair-≡ refl (funext (λ x → {!!})))
-aBitContrived (suc n) zero = pair-≡ (cong suc (+-identity-right n)) (dpair-≡ refl refl)
-aBitContrived (suc n) (suc m) = pair-≡ (cong suc {!!}) (dpair-≡ refl (funext {!!}))
-
--- +-identity-right : (n : ℕ) → n + 0 ≡ n
--- +suc
--- n + suc m ≡ m + suc n
-
-+1 : (n : ℕ) → suc n ≡ n + 1
-+1 zero = refl
-+1 (suc n) = cong suc (+1 n)
-
-+sucsuc : (n m : ℕ) → n + suc m ≡ m + suc n
-+sucsuc zero zero = refl
-+sucsuc zero (suc m) = cong suc (+1 m)
-+sucsuc (suc n) m = {!!}

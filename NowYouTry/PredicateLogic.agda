@@ -2,6 +2,7 @@ module NowYouTry.PredicateLogic where
 
 open import Data.Nat
 
+open import Agda.Primitive using (Level)
 open import Data.Unit
 open import Data.Empty
 open import Data.Product hiding (curry; uncurry)
@@ -35,14 +36,14 @@ Pred A = A → Set
 isEven : Pred ℕ
 isOdd  : Pred ℕ
 
-isEven zero = ⊤
+isEven zero    = ⊤
 isEven (suc n) = isOdd n
 
-isOdd zero = ⊥
+isOdd zero    = ⊥
 isOdd (suc n) = isEven n
 
--- isEven zero = ⊤
--- isEven (suc zero) = ⊥
+-- isEven zero          = ⊤
+-- isEven (suc zero)    = ⊥
 -- isEven (suc (suc n)) = isEven n
 
 test : isEven 4
@@ -54,14 +55,14 @@ test' ⊥ = ⊥
 -- test' ()
 
 _>1 : Pred ℕ
-zero >1 = ⊥
-suc zero >1 = ⊥
-suc (suc n) >1 = ⊤
+zero >1         = ⊥
+suc  zero >1    = ⊥
+suc  (suc n) >1 = ⊤
 
 _<3 : Pred ℕ
-zero <3 = ⊤
-suc zero <3 = ⊤
-suc (suc zero) <3 = ⊤
+zero <3              = ⊤
+suc zero <3          = ⊤
+suc (suc zero) <3    = ⊤
 suc (suc (suc n)) <3 = ⊥
 
 fact : 1 <3 × 2 >1
@@ -76,8 +77,7 @@ fact = _
 --------------------------------
 
 -- Q: What is a proof of (∀ x : A) P(x)?
-
--- A: A method which produces a proof of `P(a)` for any given `a : A` -> dependent function!
+-- A: A method which produces a proof of `P(a)` for any given `a : A` → dependent function!
 
 ∀' : (A : Set) → Pred A → Set
 ∀' A P = (x : A) → P x
@@ -106,8 +106,7 @@ ex8' (suc n) = ex8 n
 ----------------------------------
 
 -- Q: What is a proof of (∃ x : A) P(x)?
-
--- A: A choice of `a : A` and a proof of `P(a)` -> dependent tuple (Σ)!
+-- A: A choice of `a : A` and a proof of `P(a)` → dependent tuple (Σ)!
 
 ∃' : (A : Set) → Pred A → Set
 ∃' A P = Σ[ x ∈ A ] (P x)
@@ -140,8 +139,19 @@ uncurry f (a , p) = f a p
 -- Now you try --
 -----------------
 
--- TODO
+variable
+  ℓ     : Level
+  A B C : Set ℓ
+
+_∘_ : (B → C) → (A → B) → (A → C)
+(f ∘ g) a = f(g a)
+
+infixr 20 _∘_
+
 axiomOfChoice : {A B : Set}{R : A → B → Set} →
                 ((a : A) → Σ[ b ∈ B ] (R a b)) →
                 (Σ[ f ∈ (A → B) ] ((a : A) → R a (f a)))
 axiomOfChoice f = (λ a → proj₁ (f a)) , (λ a → proj₂ (f a))
+
+-- TODO
+-- axiomOfChoice f = proj₁ ∘ f , proj₂ ∘ f

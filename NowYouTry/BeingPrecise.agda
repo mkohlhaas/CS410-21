@@ -2,10 +2,6 @@ module NowYouTry.BeingPrecise where
 
 open import Agda.Builtin.Nat
 
----------------
--- Datatypes --
----------------
-
 data List (A : Set) : Set where
   []  : List A
   _∷_ : A → List A → List A
@@ -15,19 +11,13 @@ data Vec (A : Set) : Nat → Set where
   []  : Vec A 0
   _∷_ : ∀ {n} → A → Vec A n → Vec A (suc n)
 
--- think of `Fin` as `Nat<`
--- `Fin` (Finite) is a data type with exactly n elements: Fin 0 = zero elements, Fin 1 = 1 element, ...
 data Fin : Nat → Set where
-  zero : ∀ {n} → Fin (suc n)         -- `zero` is smaller than any natural number `suc n` ∀ n
-  suc : ∀ {n} → Fin n → Fin (suc n)  -- `suc`  is smaller than any natural number `suc n` ∀ n given `Fin n`
-
-----------------
--- index (!!) --
-----------------
+  zero : ∀ {n} → Fin (suc n)
+  suc  : ∀ {n} → Fin n → Fin (suc n)
 
 -- Problem: Cannot return something from an empty list.
 -- _!!_ : ∀ {A} → List A → Nat → A
--- [] !! n = {!!}                         
+-- [] !! n = {!!}
 -- (x ∷ xs) !! zero = x
 -- (x ∷ xs) !! suc n = xs !! n
 
@@ -49,9 +39,9 @@ _!!_ : ∀ {A n} → Vec A n → Fin n → A
 -- Converting Haskell `head` and `tail` Functions from Lists to Vectors! --
 ---------------------------------------------------------------------------
 
-----------
--- head --
-----------
+---------------------------------------------------------------------------
+--                                      head                             --
+---------------------------------------------------------------------------
 
 ----------------------
 -- 1. Haskell style --
@@ -70,9 +60,9 @@ head' (x ∷ _) = just x
 head : ∀ {A n} → Vec A (suc n) → A
 head (x ∷ _) = x
 
-----------
--- tail --
-----------
+---------------------------------------------------------------------------
+--                                      tail                             --
+---------------------------------------------------------------------------
 
 ----------------------
 -- 1. Haskell Style --

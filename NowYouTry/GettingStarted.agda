@@ -1,9 +1,5 @@
 module NowYouTry.GettingStarted where
 
----------------
--- Datatypes --
----------------
-
 data List (A : Set) : Set where
   []   : List A
   _∷_  : A → List A → List A
@@ -21,47 +17,22 @@ record _×_ (A B : Set) : Set where
     proj₂ : B
 open _×_
 
------------
--- const --
------------
-
--- Using C-c C-r
 const : {A B : Set} → A → B → A
 const = λ a b → a
 
--- Using C-c C-c
 const' : {A B : Set} → A → B → A
 const' a b = a
-
-------------
--- append --
-------------
 
 append : {A : Set} → List A → List A → List A
 append [] ys = ys
 append (x ∷ xs) ys = x ∷ append xs ys
 
-----------
--- swap --
-----------
-
 swap : {A B : Set} → A × B → B × A
 swap (a , b) = b , a
-
-swap' : {A B : Set} → A × B → B × A
-swap' x = (proj₂ x , proj₁ x)
-
-----------------
--- distribute --
-----------------
 
 distribute : {A B C : Set} → A × (B ⊎ C) → (A × B) ⊎ (A × C)
 distribute (a , inj₁ b) = inj₁ (a , b)
 distribute (a , inj₂ c) = inj₂ ( a , c)
-
------------------------
--- distributeInverse --
------------------------
 
 distributeInverse : {A B C : Set} → (A × B) ⊎ (A × C) → A × (B ⊎ C)
 distributeInverse (inj₁ (a , b)) = (a , inj₁ b)

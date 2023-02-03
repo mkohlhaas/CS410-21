@@ -1,38 +1,30 @@
 module NowYouTry.Logic where
 
-{-
+-- Traditional programming languages:
 
-Traditional programming languages:
-
----------------------        ---------------------
-|                   |        |                   |
-|      Program      |        |   Specification   |
-|                   |        |                   |
----------------------        ---------------------
-    In computer                    On paper
-
-Dependently typed programming languages:
-
-   ---------------------------------------
-   |                                     |
-   |      Program   :    Specification   |
-   |                                     |
-   ---------------------------------------
-                   In computer
-
--}
+-- ---------------------        ---------------------
+-- |                   |        |                   |
+-- |      Program      |        |   Specification   |
+-- |                   |        |                   |
+-- ---------------------        ---------------------
+--     In computer                    On paper
+--
+-- Dependently typed programming languages:
+--
+--    ---------------------------------------
+--    |                                     |
+--    |      Program   :    Specification   |
+--    |                                     |
+--    ---------------------------------------
+--                    In computer
 
 -- For this to work, we need to represent specifications = logical formulua in our language.
 
-----------------------------------------------------------------------
--- Propositions-as-booleans?
-----------------------------------------------------------------------
+--------------------------------
+-- Propositions as Booleans ? --
+--------------------------------
 
-{-
-
-First thought: use Bool, ie say that a proposition is either true or false.
-
--}
+-- First thought: use Bool, ie say that a proposition is either true or false.
 
 data Bool : Set where -- can be found in Data.Bool
   false true : Bool
@@ -47,9 +39,9 @@ true & y = y
 
 -- Problem: with Propositions = Bool, we can only represent decidable properties.
 
-----------------------------------------------------------------------
--- Propositions-as-types
-----------------------------------------------------------------------
+---------------------------
+-- Propositions as Types --
+---------------------------
 
 -- What is a proposition? Something which might have a proof.
 
@@ -59,27 +51,20 @@ Proposition = Set
 
 -- PROOFS = PROGRAMS
 
-{-
+--   Algebra | Logic   | Haskell Type   | Agda Type      | Comment
+--   --------+---------+---------------------------------------------
+--   a + b   | a ∨ b   | Either a b     | ⊎ (union)      | any sum type
+--   a × b   | a ∧ b   | (a, b) (tuple) | × (tuple)      | any product type
+--   bᵃ      | a ⇒ b   | a → b          | a → b          | implication
+--   a = b   | a ⇐⇒ b  | isomorphism    | isomorphism    | from . to = to . from = id
+--   0       | ⊥       | Void           | ⊥              | empty type
+--   1       | ⊤       | ()             | ⊤              | unit type
 
-In Haskell:
-
-Algebra | Logic   | Haskell Type   | Agda Type      | Comment
---------+---------+---------------------------------------------
-a + b   | a ∨ b   | Either a b     | ⊎ (union)      | any sum type
-a × b   | a ∧ b   | (a, b) (tuple) | × (tuple)      | any product type
-bᵃ      | a ⇒ b   | a → b          | a → b          |
-a = b   | a ⇐⇒ b  | isomorphism    | isomorphism    | from . to = to . from = id
-0       | ⊥       | Void           | ⊥              | empty type
-1       | ⊤       | ()             | ⊤              | unit type
-
--}
-
-----------------
--- Implication
-----------------
+-----------------
+-- Implication --
+-----------------
 
 -- Q: What is a proof of `A ⇒ B`?
-
 -- A: A method for converting proofs of A into proofs of B -- a function!
 
 _⇒_ : Set → Set → Set
@@ -92,12 +77,11 @@ I a = a
 ex1 : {A B C D : Set} → ((A → B → C) → D) → (A → C) → D
 ex1 f g = f (λ a _ → g a)
 
-----------------
--- Conjunction
-----------------
+-----------------
+-- Conjunction --
+-----------------
 
 -- Q: What is a proof of `A ∧ B`?
-
 -- A: A proof of A and a proof of B -- a tuple (pair), a product type!
 
 open import Data.Product
@@ -153,8 +137,7 @@ test2 = ex5 {⊤ → ⊤} (λ x → x)
 -----------------
 
 -- Q: What is a proof of `A ∨ B`?
-
--- A: A proof of A, or a proof of B -> disjoint union type, sum type.
+-- A: A proof of A, or a proof of B → disjoint union type, sum type.
 
 open import Data.Sum
 
@@ -165,13 +148,12 @@ ex6 : {A B : Set} → A ⊎ B → B ⊎ A
 ex6 (inj₁ a) = inj₂ a
 ex6 (inj₂ b) = inj₁ b
 
-----------------
--- Negation
-----------------
+--------------
+-- Negation --
+--------------
 
 -- Q: What is a proof of `¬ A`?
-
--- A: A method to show that all proofs of A are impossible -> function `A → ⊥`
+-- A: A method to show that all proofs of A are impossible → function `A → ⊥`
 
 ¬_ : Set → Set
 ¬ A = A → ⊥
@@ -179,7 +161,8 @@ ex6 (inj₂ b) = inj₁ b
 ex7 : ¬ (⊤ → ⊥)
 ex7 ⊤→⊥ = ⊤→⊥ tt
 
--- logic breaks down and we can prove anything
+-- Logic breaks down and we can prove anything.
+-- If you believe A and ¬ A are true then you believe anything.
 explosion : {A B : Set} → A → ¬ A → B
 explosion a ¬a = ⊥-elim (¬a a)
 
@@ -192,7 +175,7 @@ materialImplication : {A B : Set} → (¬ A ⊎ B) → (A → B)
 materialImplication (inj₁ ¬a) a = ⊥-elim (¬a a)
 materialImplication (inj₂  b) _ = b
 
--- what about `(A → B) → (¬ A ⊎ B)`?
+-- What about `(A → B) → (¬ A ⊎ B)`?
 -- materialImplicationInv : {A B : Set} → (A → B) → (¬ A ⊎ B)
 -- materialImplicationInv f = inj₁ (λ a → {!!}) -- Goal: ⊥ (not possible)
 -- materialImplicationInv f = inj₂ (f {!!})     -- Goal: A (don't have an A)
